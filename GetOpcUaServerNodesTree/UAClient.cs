@@ -47,41 +47,15 @@ public class UAClient : IDisposable
     #endregion
 
     #region Public Properties
-
-    /// <summary>
-    /// Gets the client session.
-    /// </summary>
-    public Session Session => m_session;
-
-    /// <summary>
-    /// The session keepalive interval to be used in ms.
-    /// </summary>
-    public int KeepAliveInterval { get; set; } = 5000;
-
     /// <summary>
     /// The reconnect period to be used in ms.
     /// </summary>
     public int ReconnectPeriod { get; set; } = 10000;
 
     /// <summary>
-    /// The session lifetime.
-    /// </summary>
-    public uint SessionLifeTime { get; set; } = 30 * 1000;
-
-    /// <summary>
-    /// The user identity to use to connect to the server.
-    /// </summary>
-    public IUserIdentity UserIdentity { get; set; } = new UserIdentity();
-
-    /// <summary>
     /// Auto accept untrusted certificates.
     /// </summary>
     public bool AutoAccept { get; set; } = true;
-
-    /// <summary>
-    /// The file to use for log output.
-    /// </summary>
-    public string LogFile { get; set; }
     #endregion
 
     #region Public Methods
@@ -229,8 +203,8 @@ public class UAClient : IDisposable
 
     #region Private Fields
     private object m_lock = new();
-    private SessionReconnectHandler m_reconnectHandler;
-    private Session m_session;
+    private SessionReconnectHandler? m_reconnectHandler;
+    private Session? m_session;
     #endregion
 
     #region GetMachineData
@@ -377,9 +351,10 @@ public class UAClient : IDisposable
         var parent = new List<OPCData>();
 
         // Get all references from the given ReferenceDescription
-        ReferenceDescriptionCollection nextReferences;
+        ReferenceDescriptionCollection nextReferences = new ReferenceDescriptionCollection();
+
         byte[] nextCp;
-        m_session.Browse(
+        m_session?.Browse(
             null,
             null,
             ExpandedNodeId.ToNodeId(references.NodeId, m_session.NamespaceUris),
@@ -435,8 +410,8 @@ public class UAClient : IDisposable
         }
 
         // Read attributes from the server
-        DataValueCollection values = null;
-        DiagnosticInfoCollection diagnosticInfos = null;
+        DataValueCollection? values = null;
+        DiagnosticInfoCollection? diagnosticInfos = null;
 
         ResponseHeader responseHeader = m_session.Read(
             null,
